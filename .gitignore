@@ -1,0 +1,6 @@
+﻿.venv/
+__pycache__/
+standout.db
+*.sqlite
+*.pyc
+.env

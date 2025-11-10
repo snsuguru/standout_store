@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title if title else "Standout Store" }}</title>
+    <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-zinc-50 text-zinc-900">
+    <header class="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+        <a href="/" class="font-extrabold tracking-tight text-xl">Standout<span class="text-indigo-600">Store</span></a>
+        <nav class="ml-auto flex items-center gap-3">
+          <a href="/" class="hover:underline">Home</a>
+          <a href="/admin" class="hover:underline">Admin</a>
+        </nav>
+      </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="border-t py-6 text-center text-sm text-zinc-500">
+      Built with FastAPI · HTMX · Tailwind — Live inventory & experiments demo.
+    </footer>
+    <script>
+      // connect websocket for live stock updates
+      const ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/inventory');
+      ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data.type === 'stock_update') {
+          const el = document.querySelector(`[data-stock-for="${data.product_id}"]`);
+          if (el) { el.textContent = data.stock > 0 ? data.stock + " in stock" : "Out of stock"; }
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Admin</h1>
+<div class="grid md:grid-cols-2 gap-8">
+  <div class="space-y-4">
+    <h2 class="font-semibold">Products</h2>
+    <div class="space-y-2">
+      {% for p in products %}
+      <div class="flex items-center justify-between border rounded-xl p-3">
+        <div>
+          <div class="font-medium">{{ p.title }}</div>
+          <div class="text-xs text-zinc-500" data-stock-for="{{p.id}}">{{ "Out of stock" if p.stock==0 else (p.stock ~ " in stock") }}</div>
+        </div>
+        <form hx-post="/api/admin/toggle_stock" hx-vals='{"pid": {{p.id}}}'>
+          <button class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white">Toggle Stock</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    <h2 class="font-semibold mt-6">Bulk Import (CSV)</h2>
+    <form hx-post="/api/admin/upload_csv" hx-encoding="multipart/form-data">
+      <input type="file" name="file" class="block w-full border rounded-lg p-2">
+      <button class="mt-2 px-3 py-1.5 rounded-lg bg-indigo-600 text-white">Upload</button>
+    </form>
+  </div>
+  <div class="space-y-6">
+    <div class="border rounded-2xl p-4">
+      <h3 class="font-semibold mb-2">Feature Flags</h3>
+      {% for f in flags %}
+      <form class="flex items-center gap-2" hx-post="/api/admin/flags">
+        <input type="hidden" name="name" value="{{f.name}}">
+        <label class="text-sm">{{ f.name }}</label>
+        <select name="enabled" class="border rounded px-2 py-1">
+          <option value="True" {% if f.enabled %}selected{% endif %}>enabled</option>
+          <option value="False" {% if not f.enabled %}selected{% endif %}>disabled</option>
+        </select>
+        <button class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white">Save</button>
+      </form>
+      {% endfor %}
+    </div>
+    <div class="border rounded-2xl p-4">
+      <h3 class="font-semibold mb-2">Analytics Snapshot</h3>
+      <div id="analytics" class="text-sm text-zinc-700">Loading…</div>
+    </div>
+  </div>
+</div>
+<script>
+fetch('/api/analytics/summary', {headers: authHeader()}).then(r=>r.json()).then(d=>{
+  const list = (d.top_products||[]).map(t=>`#${t.product_id}: ${t.count}`).join(', ')
+  document.getElementById('analytics').innerText = `Views: ${d.views}, Purchases: ${d.purchases}, Top: ${list}`
+}).catch(()=>{
+  document.getElementById('analytics').innerText = 'Login as admin to view.'
+});
+
+function authHeader(){
+  const token = localStorage.getItem('token')
+  return token ? {'Authorization': 'Bearer '+token} : {}
+}
+</script>
+{% endblock %}

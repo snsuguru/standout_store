@@ -1,0 +1,26 @@
+<div class="border rounded-xl p-4">
+  <h3 class="font-semibold">Get API Token</h3>
+  <form onsubmit="return doLogin(this)">
+    <input name="email" placeholder="email" class="border rounded px-2 py-1">
+    <input type="password" name="password" placeholder="password" class="border rounded px-2 py-1">
+    <button class="px-3 py-1.5 rounded bg-zinc-900 text-white">Login</button>
+    <button class="px-3 py-1.5 rounded border" onclick="return signup(this.form)">Sign up</button>
+  </form>
+  <div id="tok" class="text-xs mt-2 text-zinc-500"></div>
+</div>
+<script>
+async function doLogin(f){
+  const fd = new FormData(f);
+  const r = await fetch('/api/login', {method:'POST', body:fd});
+  const j = await r.json();
+  if(j.access_token){ localStorage.setItem('token', j.access_token); document.getElementById('tok').innerText = 'Token stored in localStorage.' }
+  return false;
+}
+async function signup(f){
+  const fd = new FormData(f);
+  const r = await fetch('/api/signup', {method:'POST', body:fd});
+  const j = await r.json();
+  if(j.access_token){ localStorage.setItem('token', j.access_token); document.getElementById('tok').innerText = 'Signed up & token stored.' }
+  return false;
+}
+</script>

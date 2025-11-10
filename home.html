@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-4">Discover experimental products</h1>
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for p in products %}
+  <a href="/product/{{p.id}}" class="group rounded-2xl border bg-white overflow-hidden shadow hover:shadow-md transition">
+    {% if p.image_url %}
+      <img src="{{p.image_url}}" alt="" class="w-full h-48 object-cover group-hover:scale-[1.02] transition">
+    {% endif %}
+    <div class="p-4">
+      <div class="flex justify-between items-baseline">
+        <h2 class="font-semibold text-lg">{{ p.title }}</h2>
+        <span class="font-bold">₹{{ '%.2f'|format(p.price) }}</span>
+      </div>
+      <div class="text-sm text-zinc-500 mt-1" data-stock-for="{{p.id}}">{{ "Out of stock" if p.stock==0 else (p.stock ~ " in stock") }}</div>
+      <p class="text-sm mt-2 line-clamp-2">{{ p.description }}</p>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

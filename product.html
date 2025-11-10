@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid md:grid-cols-2 gap-8">
+  <div>
+    <img src="{{product.image_url}}" class="w-full rounded-2xl shadow" alt="">
+  </div>
+  <div>
+    <h1 class="text-3xl font-bold mb-2">{{ product.title }}</h1>
+    <div class="text-zinc-500 mb-2" data-stock-for="{{product.id}}">{{ "Out of stock" if product.stock==0 else (product.stock ~ " in stock") }}</div>
+    <div class="prose max-w-none">{{ product.description }}</div>
+    <div class="mt-4 text-2xl font-bold">₹{{ '%.2f'|format(product.price) }}</div>
+    <form class="mt-4 flex gap-2" hx-post="/api/cart/add" hx-vals='{"product_id": {{product.id}}, "qty": 1}' onsubmit="alert('Added to cart! Use /api/cart to view via token.'); return false;">
+      <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50" {% if product.stock==0 %}disabled{% endif %}>Add to Cart</button>
+    </form>
+    <div class="mt-6">
+      <h3 class="font-semibold mb-2">You might also like</h3>
+      <div class="grid grid-cols-2 gap-3">
+        {% for r in recs %}
+        <a href="/product/{{r.id}}" class="border rounded-xl p-3 hover:bg-zinc-50">
+          <div class="font-medium text-sm">{{ r.title }}</div>
+          <div class="text-xs text-zinc-500">₹{{ '%.2f'|format(r.price) }}</div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
